@@ -4,12 +4,17 @@ import HomePageCard from '../Components/HomePageCard';
 import { useFormik } from 'formik';
 import { IoSearchSharp } from "react-icons/io5";
 import { useParams } from 'react-router';
+import LoadingScreen from '../Components/LoadingScreen';
+import ErrorPage from './ErrorPage';
 
 
 const Home = () => {
 
+    
     const [data, setData] = useState();
     const [search, setSearch] = useState('spider');
+    const [isLoading, setIsLoading] = useState(true)
+    
 
     const formik = useFormik({
         initialValues:{
@@ -22,14 +27,17 @@ const Home = () => {
 
 
     const getData = async()=>{
+        setIsLoading(true)
         try{
             const response = await axios.get(`http://www.omdbapi.com/?apikey=3f65253e&s=${search}`,{
 
             })
-            console.log(response.data.Search)
+            console.log(response.data.Search)           
             setData(response.data.Search)
         }catch(err){
             console.log(err)
+        }finally{
+            setIsLoading(false)
         }
     }
 
@@ -37,6 +45,9 @@ const Home = () => {
         getData()
     },[search])
 
+    if(isLoading){
+        return<LoadingScreen/>
+    }
   return (
     <div>
 
@@ -58,13 +69,14 @@ const Home = () => {
         </form>
 
 
-      <div className='grid grid-cols-5 p-2 bg-gray-100 w-[70%] m-auto'>
+      <div className='grid grid-cols-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-2 bg-gray-100 w-[70%] m-auto sm:w-[80%]'>
+
       {data?(
         data.map((mov,i)=>{
             return<HomePageCard mov={mov} key={i}/>
         })
       ):(
-        <p>HWHW</p>
+        <ErrorPage/>
       )}
       </div>
     </div>
